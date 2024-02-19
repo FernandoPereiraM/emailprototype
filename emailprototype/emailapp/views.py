@@ -1,41 +1,43 @@
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .models import User
+from rest_framework import status
 from .serializers import UserSerializer
+from .models import User
 
-@api_view(['GET'])
-def getData(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+class UserAPI(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
-@api_view(['GET'])
-def getUser(request, pk):
-    users = User.objects.get(id=pk)
-    serializer = UserSerializer(users, many=False)
-    return Response(serializer.data)
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def addUser(request):
-    serializer = UserSerializer(data=request.data)
+class UserDetailsAPI(APIView):
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if serializer.is_valid():
-        serializer.save()
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
-    return Response(serializer.data)
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT'])
-def updateUser(request, pk):
-    user = User.objects.get(id=pk)
-    serializer = UserSerializer(instance=user, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-
-    return Response(serializer.data)
-
-@api_view(['DELETE'])
-def deleteUser(request, pk):
-    user = User.objects.get(id=pk)
-    user.delete()
-    return Response('User successfully deleted!')
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
