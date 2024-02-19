@@ -83,7 +83,8 @@ DATABASES = {
         'PASSWORD':'123456',
         'NAME': 'postgres',
         'PORT': '5432',
-        'HOST': 'localhost', 
+        'HOST': 'localhost',
+        # 'HOST': 'endpoint-de-tu-base-de-datos.aws-region.rds.amazonaws.com', 
     }
 }
 
