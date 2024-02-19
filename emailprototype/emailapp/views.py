@@ -1,10 +1,15 @@
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import User
 
+
 class UserAPI(APIView):
+    @method_decorator(csrf_exempt)
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -22,7 +27,7 @@ class UserDetailsAPI(APIView):
         try:
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise Http404
 
     def get(self, request, pk):
         user = self.get_object(pk)
