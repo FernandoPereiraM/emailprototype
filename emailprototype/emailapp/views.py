@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import Email, User
 
-
+#User C.R.U.D
 class UserAPI(APIView):
     @method_decorator(csrf_exempt)
     def get(self, request):
@@ -17,7 +17,7 @@ class UserAPI(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        existing_user = User.objects.filter(username=request.data.get('username'))
+        existing_user = User.objects.filter(username=request.data.get('username').lower())
         
         # Validate that the username is not being updated to one that already exists.
         if existing_user.exists():
@@ -47,7 +47,7 @@ class UserDetailsAPI(APIView):
         serializer = UserSerializer(user, data=request.data)
         
         # Validate that the username is not being updated to one that already exists.
-        if 'username' in request.data and User.objects.exclude(pk=pk).filter(username=request.data['username']).exists():
+        if 'username' in request.data and User.objects.exclude(pk=pk).filter(username=request.data['username'].lower()).exists():
             return Response({'username': ['This username is already in use.']})
 
         if serializer.is_valid():
@@ -60,6 +60,7 @@ class UserDetailsAPI(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+#Email C.R.U.D
 class EmailAPI(APIView):
     @method_decorator(csrf_exempt)
     def get(self, request):
@@ -99,13 +100,25 @@ class EmailDetailsAPI(APIView):
         email.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# List of Emails by User
+#List of emails received per user
 class ByEmail_APIView(APIView):
     @csrf_exempt
     def get(self, request, format=None, *args, **kwargs):
         arg = kwargs
         try:
-            post = Email.objects.filter(receiver=arg.get('email'))
+            post = Email.objects.filter(receiver=arg.get('email').lower())
+            serializer = EmailSerializer(post, many=True)
+            return Response(serializer.data)
+        except Email.DoesNotExist:
+            raise Http404
+
+#List of emails sent by user
+class bySend_APIView(APIView):
+    @csrf_exempt
+    def get(self, request, format=None, *args, **kwargs):
+        arg = kwargs
+        try:
+            post = Email.objects.filter(sender=arg.get('email').lower())
             serializer = EmailSerializer(post, many=True)
             return Response(serializer.data)
         except Email.DoesNotExist:
