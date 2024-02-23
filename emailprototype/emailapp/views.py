@@ -2,11 +2,11 @@ from django.forms import ValidationError
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import EmailSerializer, UserSerializer
+from rest_framework import status,viewsets
+from .serializers import EmailSerializer, FolderSerializer, UserSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import Email, User
+from .models import Email, Folder, User
 
 #User C.R.U.D
 class UserAPI(APIView):
@@ -123,3 +123,10 @@ class bySend_APIView(APIView):
             return Response(serializer.data)
         except Email.DoesNotExist:
             raise Http404
+        
+# Folders C.R.U.D  Crazy rigth?!.
+class Folders_APIView(viewsets.ModelViewSet):
+    queryset = Folder.objects.all()
+    serializer_class = FolderSerializer
+
+        
