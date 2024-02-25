@@ -7,12 +7,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-
 class EmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
-        fields = '__all__'
-
+        fields = ['user', 'receiver', 'sender', 'subject', 'body', 'folder']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make the folder field optional
+        self.fields['folder'].required = False
 
 class FolderSerializer(serializers.ModelSerializer):
     class Meta:
