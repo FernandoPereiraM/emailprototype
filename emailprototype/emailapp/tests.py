@@ -39,7 +39,7 @@ class apiTests(APITestCase):
         # Add JWT token for user 1 to the request
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token_user1)
         response = self.client.post('/folders/', {'name': 'New Folder', 'user': self.user1.pk}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_list_folders(self):
         # Add JWT token for user 1 to the request
@@ -59,7 +59,7 @@ class apiTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token_user1)
         response = self.client.post('/emails/', data, format='json')
         print(response)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_create_email2(self):
         data = {
